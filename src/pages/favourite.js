@@ -9,10 +9,10 @@ export default class favourite extends React.Component {
         }
     }
     componentDidMount() {
-        fetch('url')
+        fetch('http://57d5b473.ngrok.io/Getallmovies')
             .then(res => res.json())
-            .then(data => {
-                this.setState({data})
+            .then(res => {
+                this.setState({data:res.data})
             })
     }
     handleRemoveFavrouite = (id) => {
@@ -42,7 +42,12 @@ export default class favourite extends React.Component {
         return (
             <div>
                 {
-                    (this.state.data)?<Cards data={this.state.data} favourite={this.state.favouriteList}></Cards>:<div>No Favourites</div>
+                    this.state.data.length?
+                    this.state.data.map(data=>{
+                        return data.result.map(movieData=>{
+                            return <Cards movieData={movieData} handleRemoveFavrouite={this.props.handleRemoveFavrouite.bind(this)} favourite={this.state.favouriteList}></Cards>
+                        })
+                    }):<div>No Favourites</div>
                 }
             </div>
         )

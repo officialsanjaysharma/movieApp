@@ -3,15 +3,15 @@ import './App.css';
 import Cards from './components/cards'
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
-import AppBar from './components/appBar'
 import { IconButton } from '@material-ui/core';
+
 class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      search: '',
-      trendingMovies:[],
-      searchProcess: true,
+      search: [],
+      trendingMovies: [],
+      searchProcess: false,
       favouriteList: []
     }
   }
@@ -25,10 +25,10 @@ class App extends React.Component {
   }
   componentDidMount() {
     // To fetch the trending movies
-    fetch('')
+    fetch('http://57d5b473.ngrok.io/TopRatedMovies?api_key=8b5e3a87ebe14efb138bc4772c8b722c')
       .then(res => res.json())
-      .then(data => {
-        this.setState({ trendingMovies: data })
+      .then(res => {
+        this.setState({ trendingMovies: res.data })
       })
   }
   componentWillMount() {
@@ -41,10 +41,11 @@ class App extends React.Component {
     }
   }
   handleSearchClick = () => {
-    fetch('')
+    console.log(this.state.search)
+    fetch(`http://57d5b473.ngrok.io/${this.state.search}?api_key=8b5e3a87ebe14efb138bc4772c8b722c`)
       .then(res => res.json())
-      .then(data => {
-        this.setState({})
+      .then(res => {
+        this.setState({ search: res.data, searchProcess: true })
       })
   }
   handleAddToFavrouite = (id) => {
@@ -70,7 +71,7 @@ class App extends React.Component {
   }
   handleRemoveFavrouite = (id) => {
     // To delete the element from favourite 
-    fetch('url', {
+    fetch(`http://57d5b473.ngrok.io/${id}`, {
       method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
       mode: 'cors', // no-cors, cors, *same-origin
       cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -114,7 +115,9 @@ class App extends React.Component {
               />
             </span>
             <span>
-              <IconButton>
+              <IconButton
+                onClick={() => this.handleSearchClick()}
+              >
                 <SearchIcon />
               </IconButton>
             </span>
@@ -122,12 +125,26 @@ class App extends React.Component {
         </div>
         {
           (this.state.search.length && this.state.searchProcess) ?
-          // Searched Movies
-            <Cards data={this.state.searchData} favouriteList={this.state.favouriteList} /> :
+            // Searched Movies
+            this.state.search.map(data => {
+              return data.results.map(movieData => {
+                return <Cards data={movieData} favouriteList={this.state.favouriteList} />
+              })
+            }) :
             // Trending Movies
-            (this.state.trendingMovies.length) ?
-              <Cards data={this.state.trendingMovies} favouriteList={this.state.favouriteList}></Cards>
-              : <div></div>
+            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+              {
+                (this.state.trendingMovies.length) ?
+                  this.state.trendingMovies && this.state.trendingMovies.length ?
+                    this.state.trendingMovies.map(data => {
+                      return data.results.map(movieData => {
+                        return <Cards movieData={movieData} handleRemoveFavrouite={this.handleRemoveFavrouite.bind(this)} handleAddToFavrouite={this.handleAddToFavrouite.bind(this)} favouriteList={this.state.favouriteList}></Cards>
+                      })
+                    })
+                    : <></>
+                  : <div></div>
+              }
+            </div>
         }
       </div>
     );
