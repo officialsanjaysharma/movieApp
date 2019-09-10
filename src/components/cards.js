@@ -13,9 +13,54 @@ export default class MediaCard extends React.Component {
     this.state = {
       id: 0,
     }
+
   }
+
+  handleAddToFavrouite = (id) => {
+    fetch(`http://5365c1ad.ngrok.io/${id}?api_key=8b5e3a87ebe14efb138bc4772c8b722c`, {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, cors, *same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrer: 'no-referrer', // no-referrer, *client
+      body: JSON.stringify(id), // body data type must match "Content-Type" header
+    })
+      .then(response => response.json()) // parses JSON response into native JavaScript objects 
+      .then(response => {
+        alert("Added to Favourite")
+      })
+  }
+  handleRemoveFavrouite = (id) => {
+    // To delete the element from favourite 
+    fetch(`http://5365c1ad.ngrok.io/${id}`, {
+      method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, cors, *same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrer: 'no-referrer', // no-referrer, *client
+      body: JSON.stringify(id), // body data type must match "Content-Type" header
+    })
+      .then(response => response.json()) // parses JSON response into native JavaScript objects 
+      .then(response => {
+
+        alert("Removed from Favourite")
+        // Locally removing the element from favourite
+      })
+  }
+
   render() {
     const { movieData } = this.props
+    const { favouriteList } = this.props
     return (
       this.props.movieData ?
         <Card style={{ maxWidth: '345px', margin: 10, padding: 20 }}>
@@ -37,21 +82,22 @@ export default class MediaCard extends React.Component {
               </Typography>
             </CardContent>
           </CardActionArea>
-          <CardActions>
+          <CardActions style={{ textAlign: "center" }}>
             {
-              this.props.Favourite.length && this.props.Favourite.includes(movieData.id) ? 
-              <div onclick={this.props.handleRemoveFavrouite(movieData.id)}>
-              Remove from Favourite
-              </div> :
-                <Button size="small" color="primary" onClick={this.props.handleAddToFavrouite(movieData.id)}>
-                  Add to Favourite
-                </Button>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: "flex-end" }}>
+                {
+                  (this.props.favouriteList)?
+                  (this.props.favouriteList.find(fMovie=>fMovie.id===movieData.id)) ?
+                  <Button size="small" color="primary" onClick={()=>this.handleRemoveFavrouite(movieData.id)}>
+                  Remove from Favourite
+                </Button>:
+                    <Button size="small" color="primary" onClick={()=>this.handleAddToFavrouite(movieData.id)}>
+                      Add To Favourite
+                    </Button>:<></> 
+                   
+                }
+              </div>
             }
-            <Link to={`/${movieData.id}/movies`}>
-              <Button size="small" color="primary">
-                More Info
-              </Button>
-            </Link>
           </CardActions>
         </Card> : <></>
 

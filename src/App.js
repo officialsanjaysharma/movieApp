@@ -4,6 +4,7 @@ import Cards from './components/cards'
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 import { IconButton } from '@material-ui/core';
+import { Typography } from '@material-ui/core'
 
 class App extends React.Component {
   constructor(props) {
@@ -17,138 +18,109 @@ class App extends React.Component {
   }
   componentWillMount() {
     // To fetch the favourite list
-    fetch('')
+    fetch('http://5365c1ad.ngrok.io/Getallmovies')
       .then(res => res.json())
-      .then(data => {
-        this.setState({ favouriteList: data })
+      .then(res => {
+        this.setState({ favouriteList: res.data })
       })
   }
   componentDidMount() {
     // To fetch the trending movies
-    fetch('http://57d5b473.ngrok.io/TopRatedMovies?api_key=8b5e3a87ebe14efb138bc4772c8b722c')
+    fetch('http://5365c1ad.ngrok.io/TopRatedMovies?api_key=8b5e3a87ebe14efb138bc4772c8b722c')
       .then(res => res.json())
       .then(res => {
         this.setState({ trendingMovies: res.data })
-      })
+      }).catch(err => console.log(err))
   }
-  componentWillMount() {
 
-  }
   handleSearch = (e) => {
-    this.setState({ search: e.target.value })
+    this.setState({ searchValue: e.target.value })
     if (e.target.value.length === 0) {
       this.setState({ searchProcess: false })
     }
   }
   handleSearchClick = () => {
     console.log(this.state.search)
-    fetch(`http://57d5b473.ngrok.io/${this.state.search}?api_key=8b5e3a87ebe14efb138bc4772c8b722c`)
+    fetch(`http://5365c1ad.ngrok.io/${this.state.searchValue}?api_key=8b5e3a87ebe14efb138bc4772c8b722c`)
       .then(res => res.json())
       .then(res => {
         this.setState({ search: res.data, searchProcess: true })
       })
   }
-  handleAddToFavrouite = (id) => {
-    fetch('url', {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      mode: 'cors', // no-cors, cors, *same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrer: 'no-referrer', // no-referrer, *client
-      body: JSON.stringify(id), // body data type must match "Content-Type" header
-    })
-      .then(response => response.json()) // parses JSON response into native JavaScript objects 
-      .then(response => {
-        let tempArray = this.state.favouriteList;
-        tempArray.push(id);
-        this.setState({ favouriteList: tempArray })
-      })
-  }
-  handleRemoveFavrouite = (id) => {
-    // To delete the element from favourite 
-    fetch(`http://57d5b473.ngrok.io/${id}`, {
-      method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
-      mode: 'cors', // no-cors, cors, *same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrer: 'no-referrer', // no-referrer, *client
-      body: JSON.stringify(id), // body data type must match "Content-Type" header
-    })
-      .then(response => response.json()) // parses JSON response into native JavaScript objects 
-      .then(response => {
-        // Locally removing the element from favourite
-        let tempArray = this.state.favouriteList;
-        tempArray.splice(tempArray.findIndex(id), 1);
-        this.setState({ favouriteList: tempArray })
-      })
-  }
 
-  render() {
-    return (
-      <div className="App">
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'Wrap',
-            justifyContent: 'center',
-            height: 40,
-            top: 20
-          }}>
-          <div>
-            <span>
-              <InputBase
-                placeholder="Search…"
-                value={this.state.search}
-                inputProps={{ 'aria-label': 'search' }}
-                onChange={(e) => this.handleSearch(e)}
-              />
-            </span>
-            <span>
-              <IconButton
-                onClick={() => this.handleSearchClick()}
-              >
-                <SearchIcon />
-              </IconButton>
-            </span>
-          </div>
+
+render() {
+  return (
+    <div className="App">
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'Wrap',
+          justifyContent: 'center',
+          height: 40,
+          top: 20
+        }}>
+        <div>
+          <span>
+            <InputBase
+              placeholder="Search…"
+              value={this.state.searchValue}
+              inputProps={{ 'aria-label': 'search' }}
+              onChange={(e) => this.handleSearch(e)}
+            />
+          </span>
+          <span>
+            <IconButton
+              onClick={() => this.handleSearchClick()}
+            >
+              <SearchIcon />
+            </IconButton>
+          </span>
         </div>
-        {
-          (this.state.search.length && this.state.searchProcess) ?
-            // Searched Movies
-            this.state.search.map(data => {
-              return data.results.map(movieData => {
-                return <Cards data={movieData} favouriteList={this.state.favouriteList} />
-              })
-            }) :
-            // Trending Movies
+      </div>
+      {
+        (this.state.search.length && this.state.searchProcess) ?
+          // Searched Movies
+          <div>
+            <Typography variant="h6" style={{ textAlign: "center", paddingTop: 20 }}>Searched Movies</Typography>
+            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+              {
+                this.state.search.map(data => {
+                  return data.results.map(movieData => {
+                    return <Cards movieData={movieData} favouriteList={this.state.favouriteList} />
+                  })
+                })
+              }
+            </div>
+          </div>
+          :
+          // Trending Movies
+          <div>
+            <Typography variant="h6" style={{ textAlign: "center", paddingTop: 20 }}>Trending Movies</Typography>
             <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
               {
                 (this.state.trendingMovies.length) ?
                   this.state.trendingMovies && this.state.trendingMovies.length ?
                     this.state.trendingMovies.map(data => {
-                      return data.results.map(movieData => {
-                        return <Cards movieData={movieData} handleRemoveFavrouite={this.handleRemoveFavrouite.bind(this)} handleAddToFavrouite={this.handleAddToFavrouite.bind(this)} favouriteList={this.state.favouriteList}></Cards>
+                      return data.results.map((movieData,index) => {
+                        return <Cards
+                          movieData={movieData}
+                          key={index}
+                          favouriteList={this.state.favouriteList}
+                          >
+                        </Cards>
                       })
                     })
                     : <></>
                   : <div></div>
               }
             </div>
-        }
-      </div>
-    );
-  }
+          </div>
+      }
+    </div>
+  );
+}
 }
 
 export default App;

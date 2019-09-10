@@ -6,14 +6,12 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import Favourite from './pages/favourite'
 import AppBar from './components/appBar';
-import MovieInfo from './pages/movieInfo';
 
 ReactDOM.render(
     <Router>
     <AppBar></AppBar>
         <Route path="/" exact component={App} />
         <Route path="/api/favourite/movies" exact component={Favourite} />
-        <Route path="/:id/movies" exact component={MovieInfo} /> 
     </Router>,
     document.getElementById('root'));
 
